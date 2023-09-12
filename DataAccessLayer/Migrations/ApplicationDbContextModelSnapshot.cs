@@ -103,11 +103,11 @@ namespace DataAccessLayer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SiteId"), 1L, 1);
 
-                    b.Property<string>("SiteName")
+                    b.Property<string>("EncryptedPassword")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("SitePassword")
+                    b.Property<string>("SiteName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

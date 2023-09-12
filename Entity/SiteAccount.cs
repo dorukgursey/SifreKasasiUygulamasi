@@ -14,7 +14,7 @@ namespace Entity
         public int SiteId { get; set; }
         public string SiteName { get; set; }
         public string SiteUsername { get; set; }
-        public string SitePassword { get; set; }
+        public string EncryptedPassword { get; set; }
 
         [ForeignKey("User")]
         public string UserId { get; set; }

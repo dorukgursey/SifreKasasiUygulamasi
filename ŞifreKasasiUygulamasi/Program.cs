@@ -1,19 +1,38 @@
 using DataAccessLayer;
 using Entity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Login/SignIn"; // Replace with your custom login route
+});
+
+builder.Services.AddControllersWithViews();
+
+builder.Services.AddMvc(config =>
+{
+    var policy = new AuthorizationPolicyBuilder()
+    .RequireAuthenticatedUser()
+    .Build();
+    config.Filters.Add(new AuthorizeFilter(policy));
+});
+
+builder.Services.AddMvc();
 
 var app = builder.Build();
 
@@ -30,6 +49,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

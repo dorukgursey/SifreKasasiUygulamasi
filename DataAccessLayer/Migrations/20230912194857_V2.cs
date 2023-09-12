@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DataAccessLayer.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class V2 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -164,7 +164,7 @@ namespace DataAccessLayer.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     SiteName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     SiteUsername = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SitePassword = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EncryptedPassword = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>

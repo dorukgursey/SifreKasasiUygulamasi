@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DataAccessLayer
 {
-    internal class UserRepository
+    public class UserRepository
     {
     }
 }

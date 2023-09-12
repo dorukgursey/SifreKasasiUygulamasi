@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230912142637_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20230912194857_V2")]
+    partial class V2
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -105,11 +105,11 @@ namespace DataAccessLayer.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SiteId"), 1L, 1);
 
-                    b.Property<string>("SiteName")
+                    b.Property<string>("EncryptedPassword")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("SitePassword")
+                    b.Property<string>("SiteName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
