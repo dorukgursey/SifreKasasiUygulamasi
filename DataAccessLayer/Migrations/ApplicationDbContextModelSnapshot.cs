@@ -261,13 +261,11 @@ namespace DataAccessLayer.Migrations
 
             modelBuilder.Entity("Entity.SiteAccount", b =>
                 {
-                    b.HasOne("Entity.AppUser", "User")
+                    b.HasOne("Entity.AppUser", null)
                         .WithMany("SiteAccounts")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

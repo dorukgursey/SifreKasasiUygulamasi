@@ -1,6 +1,7 @@
 ﻿using BusinessLayer.Interfaces;
 using DataAccessLayer.Interfaces;
 using Entity;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,14 +14,16 @@ namespace BusinessLayer
     public class SiteAccountService : ISiteAccountService
     {
         private readonly ISiteAccountRepository _siteAccountRepository;
+        private readonly IConfiguration _configuration;
         private readonly string _encryptionKey;
 
-        public SiteAccountService(ISiteAccountRepository siteAccountRepository, string encryptionKey)
+        public SiteAccountService(ISiteAccountRepository siteAccountRepository, IConfiguration configuration)
         {
             _siteAccountRepository = siteAccountRepository;
-            _encryptionKey = encryptionKey;
+            _configuration = configuration;
+            _encryptionKey = _configuration["EncryptionKey"];
         }
-    
+
         public void CreateSiteAccount(SiteAccount siteAccount)
         {
             string encryptedPassword = Encrypt(siteAccount.EncryptedPassword, _encryptionKey);

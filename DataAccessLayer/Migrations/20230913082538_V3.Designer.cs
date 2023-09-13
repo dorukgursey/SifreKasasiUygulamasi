@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230912194857_V2")]
-    partial class V2
+    [Migration("20230913082538_V3")]
+    partial class V3
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -263,13 +263,11 @@ namespace DataAccessLayer.Migrations
 
             modelBuilder.Entity("Entity.SiteAccount", b =>
                 {
-                    b.HasOne("Entity.AppUser", "User")
+                    b.HasOne("Entity.AppUser", null)
                         .WithMany("SiteAccounts")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

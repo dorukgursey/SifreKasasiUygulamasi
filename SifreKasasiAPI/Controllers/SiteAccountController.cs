@@ -1,23 +1,32 @@
 ﻿using BusinessLayer.Interfaces;
 using Entity;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using System.Security.Claims;
 
 namespace SifreKasasiAPI.Controllers
 {
-    [Authorize]
-    [ApiController]
+
+
     [Route("api/[controller]")]
+    [ApiController]
+    [Authorize]
     public class SiteAccountsController : ControllerBase
     {
         private readonly ISiteAccountService _siteAccountService;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly IConfiguration _configuration;
 
-        public SiteAccountsController(ISiteAccountService siteAccountService)
+        public SiteAccountsController(ISiteAccountService siteAccountService, UserManager<AppUser> userManager, IConfiguration configuration)
         {
             _siteAccountService = siteAccountService;
+            _userManager = userManager;
+            _configuration = configuration;
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("GetSiteAccount/{id}")]
         public IActionResult GetSiteAccount(int id)
         {
             var siteAccount = _siteAccountService.GetSiteAccountById(id);
@@ -27,21 +36,21 @@ namespace SifreKasasiAPI.Controllers
             return Ok(siteAccount);
         }
 
-        [HttpGet]
+        [HttpGet("GetAllSiteAccounts")]
         public IActionResult GetAllSiteAccounts()
         {
             var siteAccounts = _siteAccountService.GetAllSiteAccounts();
             return Ok(siteAccounts);
         }
 
-        [HttpPost]
+        [HttpPost("CreateSiteAccount")]
         public IActionResult CreateSiteAccount([FromBody] SiteAccount siteAccount)
         {
             _siteAccountService.CreateSiteAccount(siteAccount);
             return CreatedAtAction("GetSiteAccount", new { id = siteAccount.SiteId }, siteAccount);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("UpdateSiteAccount/{id}")]
         public IActionResult UpdateSiteAccount(int id, [FromBody] SiteAccount siteAccount)
         {
             if (id != siteAccount.SiteId)
@@ -51,11 +60,32 @@ namespace SifreKasasiAPI.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("DeleteSiteAccount/{id}")]
         public IActionResult DeleteSiteAccount(int id)
         {
             _siteAccountService.DeleteSiteAccount(id);
             return NoContent();
+        }
+        [HttpGet("GetCurrentUser")]
+        public IActionResult GetCurrentUser()
+        {
+            var currentUser = CurrentUser();
+
+            return Ok(currentUser);
+        }
+        private AppUser CurrentUser()
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            if (identity != null)
+            {
+                var userClaims = identity.Claims;
+                return new AppUser
+                {
+                    UserName = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.Name)?.Value,
+                };
+            }
+            return null;
+
         }
     }
 

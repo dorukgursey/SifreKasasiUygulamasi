@@ -25,14 +25,13 @@ namespace DataAccessLayer
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<SiteAccount>()
-                .HasOne(sa => sa.User)
+                .HasOne<AppUser>()
                 .WithMany(u => u.SiteAccounts)
                 .HasForeignKey(sa => sa.UserId)
                 .IsRequired();
 
-            // Optionally, if you want to cascade delete SiteAccounts when a user is deleted:
             modelBuilder.Entity<SiteAccount>()
-                .HasOne(sa => sa.User)
+                .HasOne<AppUser>()
                 .WithMany(u => u.SiteAccounts)
                 .HasForeignKey(sa => sa.UserId)
                 .IsRequired()

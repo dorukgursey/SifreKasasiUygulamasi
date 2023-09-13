@@ -24,8 +24,6 @@
     <title>Home</title>
 </head>
 <body>
-
-
     <div class="content">
 
         <div class="container">
@@ -33,68 +31,19 @@
 
             <div class="table-responsive">
                 <button class="btn-dark" id="createAccount">+ Create And Store An Account</button>
+                <br />
                 <table class="table custom-table">
                     <thead>
                         <tr>
-
-                            <th scope="col">Order</th>
-                            <th scope="col">Name</th>
-                            <th scope="col">Occupation</th>
-                            <th scope="col">Contact</th>
-                            <th scope="col">Education</th>
+                            <th scope="col">Site Id</th>
+                            <th scope="col">Site Name</th>
+                            <th scope="col">Username</th>
+                            <th scope="col">Password</th>
+                            <th scope="col">Edit Account</th>
+                            <th scope="col">Delete Account</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr scope="row">
-
-
-
-                            <td>
-                                1392
-                            </td>
-                            <td>James Yates</td>
-                            <td>
-                                Web Designer
-                                <small class="d-block">Far far away, behind the word mountains</small>
-                            </td>
-                            <td>+63 983 0962 971</td>
-                            <td>NY University</td>
-
-                        </tr>
-
-                        <tr>
-
-                            <td>4616</td>
-                            <td>Matthew Wasil</td>
-                            <td>
-                                Graphic Designer
-                                <small class="d-block">Far far away, behind the word mountains</small>
-                            </td>
-                            <td>+02 020 3994 929</td>
-                            <td>London College</td>
-                        </tr>
-                        <tr>
-
-                            <td>9841</td>
-                            <td>Sampson Murphy</td>
-                            <td>
-                                Mobile Dev
-                                <small class="d-block">Far far away, behind the word mountains</small>
-                            </td>
-                            <td>+01 352 1125 0192</td>
-                            <td>Senior High</td>
-                        </tr>
-                        <tr>
-
-                            <td>9548</td>
-                            <td>Gaspar Semenov</td>
-                            <td>
-                                Illustrator
-                                <small class="d-block">Far far away, behind the word mountains</small>
-                            </td>
-                            <td>+92 020 3994 929</td>
-                            <td>College</td>
-                        </tr>
 
                     </tbody>
                 </table>
@@ -111,6 +60,44 @@
     <script src="~/css-table-12/js/popper.min.js"></script>
     <script src="~/css-table-12/js/bootstrap.min.js"></script>
     <script src="~/css-table-12/js/main.js"></script>
+    <script>
+        function getJwtToken() {
+            return document.cookie.split('; ').find(row => row.startsWith('jwt=')).split('=')[1];
+        }
+
+        function getAllSiteAccounts() {
+            $.ajax({
+                url: 'https://localhost:7264/api/SiteAccounts/GetAllSiteAccounts', // Replace with your actual endpoint URL
+                type: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + getJwtToken() // Include the JWT token for authentication
+                },
+                success: function (data) {
+                    // Handle the successful response from the API
+                    // Loop through the data and append rows to the table
+                    var tableBody = $('tbody');
+                    tableBody.empty(); // Clear existing rows
+
+                    data.forEach(function (siteAccount) {
+                        tableBody.append(`
+                                    <tr scope="row">
+                                        <td>${siteAccount.siteId}</td>
+                                        <td>${siteAccount.siteName}</td>
+                                        <td>${siteAccount.username}</td>
+                                        <td>${siteAccount.password}</td>
+                                        <td><button class="btn-warning" id="editAccount">Edit</button></td>
+                                        <td><button class="btn-danger" id="deleteAccount">Delete</button></td>
+                                    </tr>
+                                `);
+                    });
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    // Handle errors
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+    </script>
 </body>
 </html>
 
