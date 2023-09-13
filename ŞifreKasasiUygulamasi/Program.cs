@@ -19,7 +19,9 @@ builder.Services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<A
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.LoginPath = "/Login/SignIn"; // Replace with your custom login route
+    
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+    options.LoginPath = "/Login/SignIn"; 
 });
 
 builder.Services.AddControllersWithViews();
@@ -54,6 +56,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Login}/{action=SignIn}/{id?}");
 
 app.Run();

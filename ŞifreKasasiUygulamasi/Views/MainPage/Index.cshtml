@@ -24,6 +24,7 @@
     <title>Home</title>
 </head>
 <body>
+
     <div class="content">
 
         <div class="container">
@@ -31,11 +32,103 @@
 
             <div class="table-responsive">
                 <button class="btn-dark" id="createAccount">+ Create And Store An Account</button>
+
+
+                <!-- The Create modal dialog -->
+                <div class="modal" id="createAccountModal" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Create New Site Account</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form>
+                                    <div class="form-group">
+                                        <label for="siteNameInput">Site Name</label>
+                                        <input type="text" class="form-control" id="siteNameInput" placeholder="Enter Site Name" pattern=".{3,}" title="Minimum 3 characters required" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="siteUsernameInput">Username</label>
+                                        <input type="text" class="form-control" id="siteUsernameInput" placeholder="Enter Username" pattern=".{3,}" title="Minimum 3 characters required"  required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="encryptedPasswordInput">Password</label>
+                                        <input type="password" class="form-control" id="encryptedPasswordInput" placeholder="Enter Password" pattern=".{3,}" title="Minimum 3 characters required" required>
+                                    </div>
+                                    
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary" id="saveAccount">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- The edit modal dialog -->
+                <div class="modal" id="editAccountModal" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Edit Site Account</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form>
+                                    <input type="hidden" id="editSiteIdInput" name="siteId" value="0">
+                                    <input type="hidden" id="editUserIdInput" name="userId" value="0">
+                                    <div class="form-group">
+                                        <label for="editSiteNameInput">Site Name</label>
+                                        <input type="text" class="form-control" id="editSiteNameInput" placeholder="Enter Site Name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="editSiteUsernameInput">Username</label>
+                                        <input type="text" class="form-control" id="editSiteUsernameInput" placeholder="Enter Username" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="editEncryptedPasswordInput">Password</label>
+                                        <input type="password" class="form-control" id="editEncryptedPasswordInput" placeholder="Enter Password" required>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary" id="saveEditAccount">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- The delete confirmation modal dialog -->
+                <div class="modal" id="deleteAccountModal" tabindex="-1" role="dialog">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Confirm Deletion</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Are you sure you want to delete this site account?</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <br />
-                <table class="table custom-table">
+                <table id="siteAccountsTable" class="table custom-table">
                     <thead>
                         <tr>
-                            <th scope="col">Site Id</th>
                             <th scope="col">Site Name</th>
                             <th scope="col">Username</th>
                             <th scope="col">Password</th>
@@ -44,7 +137,7 @@
                         </tr>
                     </thead>
                     <tbody>
-
+                        
                     </tbody>
                 </table>
             </div>
@@ -61,42 +154,290 @@
     <script src="~/css-table-12/js/bootstrap.min.js"></script>
     <script src="~/css-table-12/js/main.js"></script>
     <script>
-        function getJwtToken() {
-            return document.cookie.split('; ').find(row => row.startsWith('jwt=')).split('=')[1];
+        
+        function fetchSiteAccounts() {
+            var jwtToken = getJwtToken(); 
+
+            
+            if (jwtToken) {
+                $.ajax({
+                    url: 'https://localhost:7264/api/SiteAccounts/GetAllSiteAccounts',
+                    type: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer ' + jwtToken 
+                    },
+                    success: function (data) {
+                        console.log(data)
+                        
+                        var tableBody = $('#siteAccountsTable tbody');
+                        tableBody.empty(); 
+
+                        data.forEach(function (siteAccount) {
+                            var rowHtml = `
+                                    <tr>
+                                        <td>${siteAccount.siteName}</td>
+                                        <td>${siteAccount.siteUsername}</td>
+                                        <td>${siteAccount.encryptedPassword}</td>
+                                        <td><button class="btn-warning edit-button" data-siteid="${siteAccount.siteId}" data-userid="${siteAccount.userId}">Edit</button></td>
+                                        <td><button class="btn-danger" data-siteid="${siteAccount.siteId}">Delete</button></td>
+                                    </tr>
+                                `;
+                            tableBody.append(rowHtml);
+                        });
+                        
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        
+                        console.error('Error:', errorThrown);
+
+                        if (textStatus == 401) {
+                            window.location.href = 'https://localhost:7077/Login/SignIn'
+                        }
+                    }
+                });
+            } else {
+                
+                console.error('JWT token is not available.');
+                
+                window.location.href = 'https://localhost:7077/Login/SignIn'
+                
+            }
         }
 
-        function getAllSiteAccounts() {
-            $.ajax({
-                url: 'https://localhost:7264/api/SiteAccounts/GetAllSiteAccounts', // Replace with your actual endpoint URL
-                type: 'GET',
-                headers: {
-                    'Authorization': 'Bearer ' + getJwtToken() // Include the JWT token for authentication
-                },
-                success: function (data) {
-                    // Handle the successful response from the API
-                    // Loop through the data and append rows to the table
-                    var tableBody = $('tbody');
-                    tableBody.empty(); // Clear existing rows
+        
+        function getJwtToken() {
+            const cookies = document.cookie;
 
-                    data.forEach(function (siteAccount) {
-                        tableBody.append(`
-                                    <tr scope="row">
-                                        <td>${siteAccount.siteId}</td>
-                                        <td>${siteAccount.siteName}</td>
-                                        <td>${siteAccount.username}</td>
-                                        <td>${siteAccount.password}</td>
-                                        <td><button class="btn-warning" id="editAccount">Edit</button></td>
-                                        <td><button class="btn-danger" id="deleteAccount">Delete</button></td>
-                                    </tr>
-                                `);
+            if (cookies) {
+                const cookieArray = cookies.split('; ');
+                const jwtCookie = cookieArray.find(row => row.startsWith('jwt='));
+
+                if (jwtCookie) {
+                    return jwtCookie.split('=')[1];
+                }
+            }
+
+            
+            return null;
+        }
+
+        
+        $('#saveAccount').click(async function () {
+            var jwtToken = getJwtToken(); 
+
+            if (jwtToken) {
+                const userId = await getUserIdFromCurrentUser();
+                
+                var formData = {
+                    siteName: $('#siteNameInput').val(),
+                    siteUsername: $('#siteUsernameInput').val(),
+                    encryptedPassword: $('#encryptedPasswordInput').val(),
+                    userId: userId
+                };
+                if (formData.siteName === '' || formData.siteUsername === '' || formData.encryptedPassword === '') {
+                    alert('Please fill in all required fields.');
+                    return;
+                }
+
+                $.ajax({
+                    url: 'https://localhost:7264/api/SiteAccounts/CreateSiteAccount',
+                    type: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + jwtToken
+                    },
+                    contentType: 'application/json',
+                    data: JSON.stringify(formData),
+                    success: function (newSiteAccount) {
+                        
+                      fetchSiteAccounts();
+
+                        
+                        $('#createAccountModal').modal('hide');
+
+                        
+                        $('#siteNameInput').val('');
+                        $('#siteUsernameInput').val('');
+                        $('#encryptedPasswordInput').val('');
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        console.error('Error:', errorThrown);
+                    }
+                });
+            } else {
+                console.error('JWT token is not available.');
+            }
+        });
+
+
+        
+        $(document).ready(fetchSiteAccounts);
+
+
+        
+        $('#createAccount').click(function () {
+            $('#createAccountModal').modal('show');
+        });
+
+        
+        $('#createAccountModal .close').click(function () {
+            $('#createAccountModal').modal('hide');
+        });
+
+        
+        $('#createAccountModal button[data-dismiss="modal"]').click(function () {
+            $('#createAccountModal').modal('hide');
+        });
+
+        
+        $('#siteAccountsTable').on('click', '.edit-button', function () {
+            
+            var siteId = $(this).data('siteid');
+            console.log(siteId)
+            var userId = $(this).data('userid');
+
+            $('#editSiteIdInput').val(siteId);
+            $('#editUserIdInput').val(userId);
+            console.log(userId)
+
+            
+            $('#editAccountModal').modal('show');
+
+            
+            $('#saveEditAccount').data('siteid', siteId);
+            $('#saveEditAccount').data('userid', userId);
+
+        });
+
+        
+        $('#saveEditAccount').click(function () {
+            var jwtToken = getJwtToken(); 
+
+            if (jwtToken) {
+                
+                var siteId = $('#editSiteIdInput').val();
+                var userId = $('#editUserIdInput').val();
+
+                
+                var formData = {
+                    siteId: siteId,
+                    siteName: $('#editSiteNameInput').val(),
+                    siteUsername: $('#editSiteUsernameInput').val(),
+                    encryptedPassword: $('#editEncryptedPasswordInput').val(),
+                    userId: userId
+                };
+                if (formData.siteName === '' || formData.siteUsername === '' || formData.encryptedPassword === '') {
+                    alert('Please fill in all required fields.');
+                    return;
+                }
+                $.ajax({
+                    url: 'https://localhost:7264/api/SiteAccounts/UpdateSiteAccount/' + siteId,
+                    type: 'PUT',
+                    headers: {
+                        'Authorization': 'Bearer ' + jwtToken
+                    },
+                    contentType: 'application/json',
+                    data: JSON.stringify(formData),
+                    success: function () {
+                        
+                        var tableBody = $('#siteAccountsTable tbody');
+                        var updatedRow = tableBody.find('td').filter(function () {
+                            return $(this).text() === siteId;
+                        }).closest('tr');
+
+                        updatedRow.find('td:eq(1)').text(formData.siteName);
+                        updatedRow.find('td:eq(2)').text(formData.siteUsername);
+                        updatedRow.find('td:eq(3)').text(formData.encryptedPassword);
+
+                        
+                        $('#editAccountModal').modal('hide');
+
+                        
+                        fetchSiteAccounts();
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        console.error('Error:', errorThrown);
+                    }
+                });
+            } else {
+                console.error('JWT token is not available.');
+            }
+        });
+
+        
+        $('#siteAccountsTable').on('click', '.btn-danger', function () {
+            var siteIdToDelete = $(this).data('siteid');
+
+            
+            $('#deleteAccountModal').data('siteid', siteIdToDelete);
+
+            
+            $('#deleteAccountModal').modal('show');
+        });
+
+        
+        $('#confirmDelete').click(function () {
+            var jwtToken = getJwtToken(); 
+
+            if (jwtToken) {
+                
+                var siteIdToDelete = $('#deleteAccountModal').data('siteid');
+
+                $.ajax({
+                    url: 'https://localhost:7264/api/SiteAccounts/DeleteSiteAccount/' + siteIdToDelete,
+                    type: 'DELETE',
+                    headers: {
+                        'Authorization': 'Bearer ' + jwtToken
+                    },
+                    success: function () {
+                        
+                        $('#deleteAccountModal').modal('hide');
+
+                        
+                        fetchSiteAccounts();
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        console.error('Error:', errorThrown);
+                    }
+                });
+            } else {
+                console.error('JWT token is not available.');
+            }
+        });
+
+        function getUserIdFromCurrentUser() {
+            return new Promise((resolve, reject) => {
+                var jwtToken = getJwtToken(); 
+
+                
+                if (jwtToken) {
+                    $.ajax({
+                        url: 'https://localhost:7264/api/SiteAccounts/GetCurrentUser',
+                        type: 'GET',
+                        headers: {
+                            'Authorization': 'Bearer ' + jwtToken 
+                        },
+                        success: function (currentUser) {
+                            
+                            var userId = currentUser.id;
+                            console.log(userId);
+                            
+                            resolve(userId);
+                        },
+                        error: function (xhr, textStatus, errorThrown) {
+                            console.error('Error:', errorThrown);
+                            
+                            reject(errorThrown);
+                        }
                     });
-                },
-                error: function (xhr, textStatus, errorThrown) {
-                    // Handle errors
-                    console.error(xhr.responseText);
+                } else {
+                    console.error('JWT token is not available.');
+                    
+                    reject('JWT token is not available.');
                 }
             });
         }
+
+
     </script>
 </body>
 </html>

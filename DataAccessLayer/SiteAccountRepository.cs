@@ -32,9 +32,9 @@ namespace DataAccessLayer
             }
         }
 
-        public IEnumerable<SiteAccount> GetAllSiteAccounts()
+        public IEnumerable<SiteAccount> GetSiteAccountsByUserId(string userId)
         {
-            return _context.SiteAccounts.ToList();
+            return _context.SiteAccounts.Where(sa => sa.UserId == userId).ToList();
         }
 
         public SiteAccount GetSiteAccountById(int siteAccountId)

@@ -12,7 +12,7 @@ namespace SifreKasasiAPI.Controllers
 
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = "Bearer")]
     public class SiteAccountsController : ControllerBase
     {
         private readonly ISiteAccountService _siteAccountService;
@@ -39,7 +39,11 @@ namespace SifreKasasiAPI.Controllers
         [HttpGet("GetAllSiteAccounts")]
         public IActionResult GetAllSiteAccounts()
         {
-            var siteAccounts = _siteAccountService.GetAllSiteAccounts();
+            var currentUser = CurrentUser();
+            if (currentUser == null)
+                return Unauthorized();
+
+            var siteAccounts = _siteAccountService.GetSiteAccountsByUserId(currentUser.Id);
             return Ok(siteAccounts);
         }
 
@@ -82,6 +86,8 @@ namespace SifreKasasiAPI.Controllers
                 return new AppUser
                 {
                     UserName = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.Name)?.Value,
+                    Id = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.NameIdentifier)?.Value,
+                    
                 };
             }
             return null;

@@ -36,10 +36,10 @@ namespace BusinessLayer
             _siteAccountRepository.DeleteSiteAccount(siteAccountId);
         }
 
-        public IEnumerable<SiteAccount> GetAllSiteAccounts()
+        public IEnumerable<SiteAccount> GetSiteAccountsByUserId(string userId)
         {
 
-            var siteAccounts = _siteAccountRepository.GetAllSiteAccounts();
+            var siteAccounts = _siteAccountRepository.GetSiteAccountsByUserId(userId);
             foreach (var siteAccount in siteAccounts)
             {
                 siteAccount.EncryptedPassword = Decrypt(siteAccount.EncryptedPassword, _encryptionKey);

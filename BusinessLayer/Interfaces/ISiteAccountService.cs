@@ -10,7 +10,7 @@ namespace BusinessLayer.Interfaces
     public interface ISiteAccountService
     {
         SiteAccount GetSiteAccountById(int siteAccountId);
-        IEnumerable<SiteAccount> GetAllSiteAccounts();
+        IEnumerable<SiteAccount> GetSiteAccountsByUserId(string userId);
         void CreateSiteAccount(SiteAccount siteAccount);
         void UpdateSiteAccount(SiteAccount siteAccount);
         void DeleteSiteAccount(int siteAccountId);
